@@ -15,9 +15,22 @@
 		85A967E72DC866CA008D8E5F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		58C46CE2307570D300773A85 /* Exceptions for "apple_lab08_pract02_UIKit" folder in "apple_lab08_pract02_UIKit" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 85A967A02DC85DEF008D8E5F /* apple_lab08_pract02_UIKit */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		85A967A32DC85DEF008D8E5F /* apple_lab08_pract02_UIKit */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				58C46CE2307570D300773A85 /* Exceptions for "apple_lab08_pract02_UIKit" folder in "apple_lab08_pract02_UIKit" target */,
+			);
 			path = apple_lab08_pract02_UIKit;
 			sourceTree = "<group>";
 		};
