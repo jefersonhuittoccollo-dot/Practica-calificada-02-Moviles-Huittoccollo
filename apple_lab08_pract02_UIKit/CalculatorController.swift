@@ -9,62 +9,95 @@ import UIKit
 
 class CalculatorController: UIViewController {
 
-    // MARK: - Outlets (Campos de entrada y resultado)
+    // MARK: - Outlets
     @IBOutlet weak var num1TextField: UITextField!
     @IBOutlet weak var num2TextField: UITextField!
-    @IBOutlet weak var resultLabel: UILabel!
+    @IBOutlet weak var operationButton: UIButton!
+    @IBOutlet weak var calculateButton: UIButton!
     
+    // Guardará la operación elegida
+    var selectedOperation: String = "Addition (+)"
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupOperationMenu()
     }
-    
-    private func setupUI() {
-        num1TextField?.placeholder = "First Number"
-        num1TextField?.keyboardType = .decimalPad
-        
-        num2TextField?.placeholder = "Second Number"
-        num2TextField?.keyboardType = .decimalPad
-        
-        resultLabel?.text = "Result: "
-    }
-    
-    // MARK: - IBActions para las Operaciones
-    @IBAction func calculateSum(_ sender: UIButton) {
-        performOperation { $0 + $1 }
-    }
-    
-    @IBAction func calculateSubtract(_ sender: UIButton) {
-        performOperation { $0 - $1 }
-    }
-    
-    @IBAction func calculateMultiply(_ sender: UIButton) {
-        performOperation { $0 * $1 }
-    }
-    
-    @IBAction func calculateDivide(_ sender: UIButton) {
-        performOperation { n1, n2 in
-            guard n2 != 0 else {
-                resultLabel.text = "Result: Error (Div/0)"
-                return 0
-            }
-            return n1 / n2
+     
+    private func setupOperationMenu() {
+        // Acciones para el menú desplegable
+        let addition = UIAction(title: "Addition (+)", state: .on) { [weak self] _ in
+            self?.selectedOperation = "Addition (+)"
+            self?.operationButton.setTitle("Addition (+)", for: .normal)
         }
+        
+        let subtraction = UIAction(title: "Subtraction (-)") { [weak self] _ in
+            self?.selectedOperation = "Subtraction (-)"
+            self?.operationButton.setTitle("Subtraction (-)", for: .normal)
+        }
+        
+        let multiplication = UIAction(title: "Multiplication (×)") { [weak self] _ in
+            self?.selectedOperation = "Multiplication (×)"
+            self?.operationButton.setTitle("Multiplication (×)", for: .normal)
+        }
+        
+        let division = UIAction(title: "Division (÷)") { [weak self] _ in
+            self?.selectedOperation = "Division (÷)"
+            self?.operationButton.setTitle("Division (÷)", for: .normal)
+        }
+
+        // Asignamos el UIMenu al botón
+        operationButton.menu = UIMenu(title: "Select Operation", children: [addition, subtraction, multiplication, division])
+        operationButton.showsMenuAsPrimaryAction = true
     }
-    
-    private func performOperation(_ operation: (Double, Double) -> Double) {
+
+    // MARK: - IBAction del botón Calculate
+    @IBAction func calculatePressed(_ sender: UIButton) {
         guard let text1 = num1TextField.text, let n1 = Double(text1),
               let text2 = num2TextField.text, let n2 = Double(text2) else {
-            resultLabel.text = "Result: Ingrese números válidos"
             return
         }
-        
-        let result = operation(n1, n2)
-        // Muestra enteros sin decimales innecesarios (ej. 5 en lugar de 5.0)
-        if result.truncatingRemainder(dividingBy: 1) == 0 {
-            resultLabel.text = "Result: \(Int(result))"
-        } else {
-            resultLabel.text = "Result: \(result)"
+
+        var result: Double = 0
+        switch selectedOperation {
+        case "Addition (+)": result = n1 + n2
+        case "Subtraction (-)": result = n1 - n2
+        case "Multiplication (×)": result = n1 * n2
+        case "Division (÷)": result = n2 != 0 ? n1 / n2 : 0
+        default: break
+        }
+
+        let resultStr = result.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(result))" : "\(result)"
+
+        // Buscar el ResultController en la 3ra pestaña (Índice 2)
+        if let tabBarVC = self.tabBarController,
+           let viewControllers = tabBarVC.viewControllers,
+           viewControllers.count > 2 {
+            
+            var targetVC: ResultController?
+            
+            // Si la pestaña es directamente un ResultController
+            if let resultVC = viewControllers[2] as? ResultController {
+                targetVC = resultVC
+            }
+            // Si la pestaña está envuelta en un UINavigationController
+            else if let navVC = viewControllers[2] as? UINavigationController,
+                    let resultVC = navVC.topViewController as? ResultController {
+                targetVC = resultVC
+            }
+            
+            // Asignar los valores y cambiar de pestaña
+            if let resultVC = targetVC {
+                resultVC.operationStr = selectedOperation
+                resultVC.num1Str = text1
+                resultVC.num2Str = text2
+                resultVC.resultStr = resultStr
+                
+                if resultVC.isViewLoaded {
+                    resultVC.setupData()
+                }
+                
+                tabBarVC.selectedIndex = 2
+            }
         }
     }
 }
